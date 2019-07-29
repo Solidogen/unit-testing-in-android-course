@@ -1,7 +1,5 @@
 package com.techyourchance.unittestingfundamentals.example3;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,7 +8,7 @@ import static org.junit.Assert.assertThat;
 
 public class IntervalsOverlapDetectorTest {
 
-    IntervalsOverlapDetector SUT;
+    private IntervalsOverlapDetector SUT;
 
     @Before
     public void setup() throws Exception {
