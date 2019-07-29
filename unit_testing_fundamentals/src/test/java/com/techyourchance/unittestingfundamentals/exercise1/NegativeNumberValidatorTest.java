@@ -17,16 +17,20 @@ public class NegativeNumberValidatorTest {
 
     @Test
     public void testNegativeNumber() {
-        assertThat(SUT.isNegative(-1), is(true));
+
+        boolean result = SUT.isNegative(-1);
+        assertThat(result, is(true));
     }
 
     @Test
     public void testZero() {
-        assertThat(SUT.isNegative(0), is(false));
+        boolean result = SUT.isNegative(0);
+        assertThat(result, is(false));
     }
 
     @Test
     public void testPositiveNumber() {
-        assertThat(SUT.isNegative(1), is(false));
+        boolean result = SUT.isNegative(1);
+        assertThat(result, is(false));
     }
 }
