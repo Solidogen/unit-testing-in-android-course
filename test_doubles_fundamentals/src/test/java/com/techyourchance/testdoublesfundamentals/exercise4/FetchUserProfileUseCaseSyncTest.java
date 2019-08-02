@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import static com.techyourchance.testdoublesfundamentals.exercise4.FetchUserProfileUseCaseSync.*;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
 
@@ -65,6 +66,10 @@ public class FetchUserProfileUseCaseSyncTest {
 
         @Override
         public void cacheUser(User user) {
+            User existingUser = getUser(user.getUserId());
+            if (existingUser != null) {
+                mCachedUserList.remove(existingUser);
+            }
             mCachedUserList.add(user);
         }
 
@@ -96,60 +101,42 @@ public class FetchUserProfileUseCaseSyncTest {
     @Test
     public void fetchUser_success_userCached() {
         SUT.fetchUserProfileSync(USER_ID);
-        assertThat(mUsersCacheTd.mCachedUserList.stream().map(new Function<User, String>() {
-            @Override
-            public String apply(User i) {
-                return i.getUserId();
-            }
-        }).collect(Collectors.<String>toList()), hasItem(USER_ID));
+        User cachedUser = mUsersCacheTd.getUser(USER_ID);
+        assertThat(cachedUser.getUserId(), is(USER_ID));
+        assertThat(cachedUser.getFullName(), is(FULL_NAME));
+        assertThat(cachedUser.getImageUrl(), is(IMAGE_URL));
     }
 
     @Test
     public void fetchUser_authError_userNotCached() {
         mUserProfileHttpEndpointSyncTd.mIsAuthError = true;
         SUT.fetchUserProfileSync(USER_ID);
-        assertThat(mUsersCacheTd.mCachedUserList.stream().map(new Function<User, String>() {
-            @Override
-            public String apply(User i) {
-                return i.getUserId();
-            }
-        }).collect(Collectors.<String>toList()), not(hasItem(USER_ID)));
+        User cachedUser = mUsersCacheTd.getUser(USER_ID);
+        assertThat(cachedUser, is(nullValue()));
     }
 
     @Test
     public void fetchUser_serverError_userNotCached() {
         mUserProfileHttpEndpointSyncTd.mIsServerError = true;
         SUT.fetchUserProfileSync(USER_ID);
-        assertThat(mUsersCacheTd.mCachedUserList.stream().map(new Function<User, String>() {
-            @Override
-            public String apply(User i) {
-                return i.getUserId();
-            }
-        }).collect(Collectors.<String>toList()), not(hasItem(USER_ID)));
+        User cachedUser = mUsersCacheTd.getUser(USER_ID);
+        assertThat(cachedUser, is(nullValue()));
     }
 
     @Test
     public void fetchUser_networkError_userNotCached() {
         mUserProfileHttpEndpointSyncTd.mIsNetworkError = true;
         SUT.fetchUserProfileSync(USER_ID);
-        assertThat(mUsersCacheTd.mCachedUserList.stream().map(new Function<User, String>() {
-            @Override
-            public String apply(User i) {
-                return i.getUserId();
-            }
-        }).collect(Collectors.<String>toList()), not(hasItem(USER_ID)));
+        User cachedUser = mUsersCacheTd.getUser(USER_ID);
+        assertThat(cachedUser, is(nullValue()));
     }
 
     @Test
     public void fetchUser_generalError_userNotCached() {
         mUserProfileHttpEndpointSyncTd.mIsGeneralError = true;
         SUT.fetchUserProfileSync(USER_ID);
-        assertThat(mUsersCacheTd.mCachedUserList.stream().map(new Function<User, String>() {
-            @Override
-            public String apply(User i) {
-                return i.getUserId();
-            }
-        }).collect(Collectors.<String>toList()), not(hasItem(USER_ID)));
+        User cachedUser = mUsersCacheTd.getUser(USER_ID);
+        assertThat(cachedUser, is(nullValue()));
     }
 
     @Test
