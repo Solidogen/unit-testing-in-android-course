@@ -72,14 +72,11 @@ public class UpdateUsernameUseCaseSyncTest {
         assertThat(result, is(UseCaseResult.FAILURE));
     }
 
-    // network error return network error (RACZEJ nie musze tego testowac, bo tam ma leciec wyjatek, ale tbh chuj wie, narazie to testuje)
-    // TODO nie wiem czy jest ten jest dobrze napisany
-
     @Test
-    public void updateUsername_networkError_returnFailure() throws Exception {
+    public void updateUsername_networkError_returnNetworkError() throws Exception {
         networkError();
         UseCaseResult result = SUT.updateUsernameSync(USER_ID, USERNAME);
-        assertThat(result, is(UseCaseResult.FAILURE));
+        assertThat(result, is(UseCaseResult.NETWORK_ERROR));
     }
 
     @Test
@@ -92,8 +89,6 @@ public class UpdateUsernameUseCaseSyncTest {
         assertThat(captures.get(1), is(USERNAME));
     }
 
-    // success user cached
-
     @Test
     public void updateUsername_success_userCached() {
         SUT.updateUsernameSync(USER_ID, USERNAME);
@@ -104,16 +99,12 @@ public class UpdateUsernameUseCaseSyncTest {
         assertThat(capturedUser.getUsername(), is(USERNAME));
     }
 
-    // auth error user not cached
-
     @Test
     public void updateUsername_authError_userCacheNotInteractedWith() throws Exception {
         authError();
         SUT.updateUsernameSync(USER_ID, USERNAME);
         verifyNoMoreInteractions(usersCacheMock);
     }
-
-    // server error user not cached
 
     @Test
     public void updateUsername_serverError_userCacheNotInteractedWith() throws Exception {
@@ -122,8 +113,6 @@ public class UpdateUsernameUseCaseSyncTest {
         verifyNoMoreInteractions(usersCacheMock);
     }
 
-    // general error user not cached
-
     @Test
     public void updateUsername_generalError_userCacheNotInteractedWith() throws Exception {
         generalError();
@@ -131,16 +120,12 @@ public class UpdateUsernameUseCaseSyncTest {
         verifyNoMoreInteractions(usersCacheMock);
     }
 
-    // network error user not cached (RACZEJ nie musze tego testowac, bo tam ma leciec wyjatek, ale tbh chuj wie, narazie to testuje)
-
     @Test
     public void updateUsername_networkError_userCacheNotInteractedWith() throws Exception {
         networkError();
         SUT.updateUsernameSync(USER_ID, USERNAME);
         verifyNoMoreInteractions(usersCacheMock);
     }
-
-    // success event posted
 
     @Test
     public void updateUsername_success_eventBusPostedSuccessEvent() {
@@ -151,16 +136,12 @@ public class UpdateUsernameUseCaseSyncTest {
         assertThat(postedEvent, instanceOf(UserDetailsChangedEvent.class));
     }
 
-    // auth error event not posted
-
     @Test
     public void updateUsername_authError_eventBusNotInteractedWith() throws Exception {
         authError();
         SUT.updateUsernameSync(USER_ID, USERNAME);
         verifyNoMoreInteractions(eventBusPosterMock);
     }
-
-    // server error event not posted
 
     @Test
     public void updateUsername_serverError_eventBusNotInteractedWith() throws Exception {
@@ -169,16 +150,12 @@ public class UpdateUsernameUseCaseSyncTest {
         verifyNoMoreInteractions(eventBusPosterMock);
     }
 
-    // general error event not posted
-
     @Test
     public void updateUsername_generalError_eventBusNotInteractedWith() throws Exception {
         generalError();
         SUT.updateUsernameSync(USER_ID, USERNAME);
         verifyNoMoreInteractions(eventBusPosterMock);
     }
-
-    // network error event not posted (RACZEJ nie musze tego testowac, bo tam ma leciec wyjatek, ale tbh chuj wie, narazie to testuje)
 
     @Test
     public void updateUsername_networkError_eventBusNotInteractedWith() throws Exception {
