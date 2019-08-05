@@ -31,8 +31,8 @@ public class FetchUserUseCaseSyncTest {
 
     // region helper fields
 
-    @Mock UsersCache usersCache;
-    @Mock FetchUserHttpEndpointSync fetchUserHttpEndpointSync;
+    @Mock UsersCache usersCacheMock;
+    @Mock FetchUserHttpEndpointSync fetchUserHttpEndpointSyncMock;
 
     // endregion helper fields
 
@@ -43,7 +43,7 @@ public class FetchUserUseCaseSyncTest {
 
     @Before
     public void setup() throws Exception {
-        SUT = new FetchUserUseCaseSyncImpl(fetchUserHttpEndpointSync, usersCache);
+        SUT = new FetchUserUseCaseSyncImpl(fetchUserHttpEndpointSyncMock, usersCacheMock);
     }
 
     @Test
@@ -54,8 +54,18 @@ public class FetchUserUseCaseSyncTest {
         // Act
         SUT.fetchUserSync(USER_ID);
         // Assert
-        verify(usersCache, times(1)).getUser(ac.capture());
+        verify(usersCacheMock, times(1)).getUser(ac.capture());
         assertThat(ac.getValue(), is(USER_ID));
+    }
+
+    @Test
+    public void fetchUser_userExistsInCache_successReturned() throws Exception {
+        // Arrange
+        userInCache();
+        // Act
+        UseCaseResult result = SUT.fetchUserSync(USER_ID);
+        // Assert
+        assertThat(result.getStatus(), is(FetchUserUseCaseSync.Status.SUCCESS));
     }
 
     @Test
@@ -75,7 +85,7 @@ public class FetchUserUseCaseSyncTest {
         // Act
         SUT.fetchUserSync(USER_ID);
         // Assert
-        verifyNoMoreInteractions(fetchUserHttpEndpointSync);
+        verifyNoMoreInteractions(fetchUserHttpEndpointSyncMock);
     }
 
     @Test
@@ -87,7 +97,7 @@ public class FetchUserUseCaseSyncTest {
         // Act
         SUT.fetchUserSync(USER_ID);
         // Assert
-        verify(fetchUserHttpEndpointSync, times(1)).fetchUserSync(ac.capture());
+        verify(fetchUserHttpEndpointSyncMock, times(1)).fetchUserSync(ac.capture());
         assertThat(ac.getValue(), is(USER_ID));
     }
 
@@ -116,12 +126,14 @@ public class FetchUserUseCaseSyncTest {
     @Test
     public void fetchUser_userNotInCacheEndpointSuccess_userSavedToCache() throws Exception {
         // Arrange
+        ArgumentCaptor<User> ac = ArgumentCaptor.forClass(User.class);
         userNotInCache();
         endpointNetworkSuccess();
         // Act
-        UseCaseResult result = SUT.fetchUserSync(USER_ID);
+        SUT.fetchUserSync(USER_ID);
         // Assert
-        assertThat(result.getUser(), is(USER));
+        verify(usersCacheMock).cacheUser(ac.capture());
+        assertThat(ac.getValue(), is(USER));
     }
 
     @Test
@@ -154,7 +166,7 @@ public class FetchUserUseCaseSyncTest {
         // Act
         SUT.fetchUserSync(USER_ID);
         // Assert
-        verify(usersCache, never()).cacheUser(any(User.class));
+        verify(usersCacheMock, never()).cacheUser(any(User.class));
     }
 
     @Test
@@ -187,7 +199,7 @@ public class FetchUserUseCaseSyncTest {
         // Act
         SUT.fetchUserSync(USER_ID);
         // Assert
-        verify(usersCache, never()).cacheUser(any(User.class));
+        verify(usersCacheMock, never()).cacheUser(any(User.class));
     }
 
     @Test
@@ -220,33 +232,33 @@ public class FetchUserUseCaseSyncTest {
         // Act
         SUT.fetchUserSync(USER_ID);
         // Assert
-        verify(usersCache, never()).cacheUser(any(User.class));
+        verify(usersCacheMock, never()).cacheUser(any(User.class));
     }
 
     // region helper methods
 
     private void endpointNetworkSuccess() throws Exception {
-        when(fetchUserHttpEndpointSync.fetchUserSync(anyString())).thenReturn(new EndpointResult(SUCCESS, USER_ID, USERNAME));
+        when(fetchUserHttpEndpointSyncMock.fetchUserSync(anyString())).thenReturn(new EndpointResult(SUCCESS, USER_ID, USERNAME));
     }
 
     private void endpointAuthError() throws Exception {
-        when(fetchUserHttpEndpointSync.fetchUserSync(anyString())).thenReturn(new EndpointResult(AUTH_ERROR, "", ""));
+        when(fetchUserHttpEndpointSyncMock.fetchUserSync(anyString())).thenReturn(new EndpointResult(AUTH_ERROR, "", ""));
     }
 
     private void endpointServerError() throws Exception {
-        when(fetchUserHttpEndpointSync.fetchUserSync(anyString())).thenReturn(new EndpointResult(GENERAL_ERROR, "", ""));
+        when(fetchUserHttpEndpointSyncMock.fetchUserSync(anyString())).thenReturn(new EndpointResult(GENERAL_ERROR, "", ""));
     }
 
     private void endpointNetworkError() throws Exception {
-        when(fetchUserHttpEndpointSync.fetchUserSync(anyString())).thenThrow(new NetworkErrorException());
+        when(fetchUserHttpEndpointSyncMock.fetchUserSync(anyString())).thenThrow(new NetworkErrorException());
     }
 
     private void userInCache() {
-        when(usersCache.getUser(anyString())).thenReturn(new User(USER_ID, USERNAME));
+        when(usersCacheMock.getUser(anyString())).thenReturn(new User(USER_ID, USERNAME));
     }
 
     private void userNotInCache() {
-        when(usersCache.getUser(anyString())).thenReturn(null);
+        when(usersCacheMock.getUser(anyString())).thenReturn(null);
     }
 
     // endregion helper methods
