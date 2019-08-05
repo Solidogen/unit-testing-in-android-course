@@ -11,7 +11,7 @@ public interface GetContactsHttpEndpoint {
 
     interface Callback {
         void onGetContactsSucceeded(List<ContactSchema> cartItems);
-        void onGetContactsFailed(FailReason failReason);
+        void onGetContactsFailed(FailReason failReason) throws Exception;
     }
 
     /**

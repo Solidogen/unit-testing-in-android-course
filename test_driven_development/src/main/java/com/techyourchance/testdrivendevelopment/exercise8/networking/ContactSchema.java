@@ -1,5 +1,7 @@
 package com.techyourchance.testdrivendevelopment.exercise8.networking;
 
+import java.util.Objects;
+
 public class ContactSchema {
     private final String mId;
     private final String mFullName;
@@ -33,5 +35,22 @@ public class ContactSchema {
 
     public String getImageUrl() {
         return mImageUrl;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContactSchema that = (ContactSchema) o;
+        return Double.compare(that.mAge, mAge) == 0 &&
+                Objects.equals(mId, that.mId) &&
+                Objects.equals(mFullName, that.mFullName) &&
+                Objects.equals(mFullPhoneNumber, that.mFullPhoneNumber) &&
+                Objects.equals(mImageUrl, that.mImageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mId, mFullName, mFullPhoneNumber, mImageUrl, mAge);
     }
 }
